@@ -5,8 +5,8 @@ import torchvision.datasets as datasets
 import torchvision.models as models
 
 # Параметры обучения
-batch_size = 128
-learning_rate = 0.1
+batch_size = 64
+learning_rate = 0.001
 num_epochs = 100
 num_classes = 1000 # Количество классов в ImageNet-mini
 
@@ -67,9 +67,9 @@ val_loader = torch.utils.data.DataLoader(dataset=val_dataset, batch_size=batch_s
 
 # Определение функции потерь и оптимизатора
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate, momentum = 0.5)
+optimizer = torch.optim.RMSprop(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate)#, momentum = 0.5)
 
-lr_step = 30
+lr_step = 60
 lr_gamma = 0.1
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=lr_step, gamma=lr_gamma)
 # Обучение модели
@@ -85,7 +85,7 @@ for epoch in range(num_epochs):
     optimizer.zero_grad()
     loss.backward()
 
-    nn.utils.clip_grad_norm_(model.parameters(), max_norm = 3.0)
+    nn.utils.clip_grad_norm_(model.parameters(), max_norm = 2.0)
 
     optimizer.step()
 
@@ -107,3 +107,4 @@ for epoch in range(num_epochs):
       correct += (predicted == labels).sum().item()
 
     print(f'Accuracy of the model on the {len(val_dataset)} validation images: {(100 * correct / total)} %')
+    
